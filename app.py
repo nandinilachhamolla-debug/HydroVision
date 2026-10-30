@@ -138,6 +138,7 @@ def seed_initial_readings():
 def startup():
     database.init_db(app.config["DB_PATH"])
     seed_initial_readings()
+startup()
 
 
 LATEST_SQL = ("SELECT z.id AS zone_pk, r.id AS reading_id, r.time_label AS time, r.flow_lph, r.pressure_bar, r.consumption_lph, "
@@ -351,7 +352,13 @@ def static_file(name):
     return jsonify(error="Not found"), 404
 
 
+# Initialize the database when the app starts,
+# including when Render starts it using Gunicorn.
+startup()
+
 if __name__ == "__main__":
+    print("HydroVision backend (SIMULATED data) on http://127.0.0.1:5000")
+    app.run(host="0.0.0.0", port=5000, debug=False)
     startup()
     print("HydroVision backend (SIMULATED data) on http://127.0.0.1:5000  - database:", app.config["DB_PATH"])
     app.run(host="127.0.0.1", port=5000, debug=False)
