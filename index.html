@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HydroVision - DEMO</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand">&#128167; HydroVision<small>See the Leak. Save the Water.</small></div>
+  <nav>
+    <button data-sec="overview" class="active">Overview</button>
+    <button data-sec="monitoring">Live Monitoring</button>
+    <button data-sec="map">Risk Map</button>
+    <button data-sec="predictions">AI Predictions</button>
+    <button data-sec="alerts">Alerts</button>
+    <button data-sec="incidents">Incidents</button>
+    <button data-sec="analytics">Analytics</button>
+    <button data-sec="conservation">Water Conservation</button>
+    <button data-sec="about">About Project</button>
+  </nav>
+</aside>
+<main>
+  <header>
+    <div><b>HydroVision</b> <span class="muted">Urban Water Intelligence</span></div>
+    <div class="hdr-right">
+      <span class="badge demo">DEMO MODE</span>
+      <span class="muted">Updated: <span id="updated">-</span></span>
+      <button id="bell" aria-label="Active alerts">&#128276; <i id="bellCount">0</i></button>
+    </div>
+  </header>
+  <div class="simbar">
+    <b>Simulation (DEMO DATA):</b>
+    <select id="simZone" aria-label="Zone to simulate"></select>
+    <button data-sc="sudden">Simulate Sudden Leak</button>
+    <button data-sc="slow">Simulate Slow Leak</button>
+    <button data-sc="demand">Simulate High Demand</button>
+    <button data-sc="pressure">Simulate Pressure Drop</button>
+    <button data-sc="reset" class="ghost">Reset Demo</button>
+    <span id="simMsg" class="muted" role="status"></span>
+  </div>
+
+  <section id="overview" class="sec active">
+    <h2>Overview <span class="badge demo">DEMO DATA</span></h2>
+    <div class="stats">
+      <div class="card"><span>Monitored Zones</span><b id="stZones">0</b></div>
+      <div class="card"><span>Current Water Flow</span><b id="stFlow">0</b></div>
+      <div class="card"><span>Est. Potential Loss</span><b id="stLoss">0</b></div>
+      <div class="card"><span>High/Critical Zones</span><b id="stHigh">0</b></div>
+      <div class="card"><span>Active Alerts</span><b id="stAlerts">0</b></div>
+      <div class="card"><span>Open Incidents</span><b id="stInc">0</b></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Network flow vs expected (simulated hours)</h3><div class="chartbox"><canvas id="flowChart"></canvas></div></div>
+      <div class="card"><h3>Zone risk summary</h3><div id="riskSummary"></div></div>
+      <div class="card"><h3>Recent alerts</h3><div id="recentAlerts"></div></div>
+      <div class="card"><h3>System activity</h3><ul id="activity" class="log"></ul></div>
+    </div>
+  </section>
+
+  <section id="monitoring" class="sec">
+    <h2>Live Monitoring <span class="badge demo">SIMULATED</span></h2>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search zone..." aria-label="Search zone">
+      <select id="filter" aria-label="Filter by risk"><option value="all">All</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option><option value="critical">Critical</option></select>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Zone</th><th>Flow (L/h)</th><th>Expected (L/h)</th><th>Pressure (bar)</th><th>Consumption (L/h)</th><th>Risk score</th><th>Status</th><th>Last update</th></tr></thead>
+      <tbody id="monBody"></tbody>
+    </table></div>
+  </section>
+
+  <section id="map" class="sec">
+    <h2>Risk Map <span class="badge demo">SIMULATED ZONES</span></h2>
+    <div id="mapFallback" class="notice" hidden>Map unavailable (Leaflet could not load - check your internet connection). Zone data is still shown in Live Monitoring.</div>
+    <div id="mapBox"></div>
+    <p class="muted">Marker colours: green low, yellow moderate, orange high, red critical. Zones are fictional monitoring zones placed near Hyderabad localities, not real municipal data.</p>
+  </section>
+
+  <section id="predictions" class="sec">
+    <h2>AI Predictions <span class="badge demo">DEMO RULES</span></h2>
+    <div class="notice">The risk score is a <b>heuristic indicator</b>, NOT a calibrated probability of leakage. This version uses transparent JavaScript rules; the trained ML model is <b>not</b> connected to this website.</div>
+    <select id="predZone" aria-label="Zone"></select>
+    <div id="predBox" class="card"></div>
+  </section>
+
+  <section id="alerts" class="sec">
+    <h2>Alerts <span class="badge demo">DEMO DATA</span></h2>
+    <div id="alertList"></div>
+  </section>
+
+  <section id="incidents" class="sec">
+    <h2>Incidents <span class="badge demo">DEMO DATA</span></h2>
+    <div id="incList"></div>
+  </section>
+
+  <section id="analytics" class="sec">
+    <h2>Analytics <span class="badge demo">DEMO DATA</span></h2>
+    <div class="card"><h3>Risk score by zone</h3><div class="chartbox"><canvas id="riskChart"></canvas></div></div>
+  </section>
+
+  <section id="conservation" class="sec">
+    <h2>Water Conservation</h2>
+    <div id="consList"></div>
+  </section>
+
+  <section id="about" class="sec">
+    <h2>About Project</h2>
+    <div class="card prose">
+      <p><b>Problem.</b> Urban pipe networks lose water through leaks that can stay undetected for long periods; manual inspection is slow and reactive.</p>
+      <p><b>Proposed solution.</b> Compare flow, pressure and metered consumption with what is normal for each zone and hour, score the deviation, and raise alerts only when abnormal readings persist.</p>
+      <h3>Workflow</h3>
+      <ol class="flow"><li>Sensor data</li><li>Validation</li><li>Features</li><li>Anomaly check</li><li>Risk score</li><li>Excess flow estimate</li><li>Alert</li><li>Incident</li><li>Action</li></ol>
+      <p><b>Risk scoring (this demo).</b> Score = flow excess not explained by consumption (35) + pressure drop (25) + flow-vs-consumption mismatch (25) + persistence (15). High demand raises flow and consumption together, so it is not scored as a leak. A pressure drop alone is not proof of leakage.</p>
+      <p><b>Alerts.</b> An alert needs a score of at least 50 for 3 consecutive readings; a single spike or sensor glitch does not create one. Each alert opens an incident (Open, Under investigation, Resolved).</p>
+      <p><b>Estimated potential loss.</b> Excess flow = observed flow - (expected flow + consumption increase). It is an estimate, not measured leakage or confirmed saved water.</p>
+      <p><b>Future work.</b> Flow/pressure sensors with an ESP32 gateway sending readings by MQTT/HTTP to a backend that runs the trained model. Not implemented in this website.</p>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
